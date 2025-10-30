@@ -118,18 +118,21 @@ export default function App() {
         ...prev,
         disciplinas: {
           ...prev.disciplinas,
-          [disciplina]: ''
+          [disciplina]: { nota: '', faltas: '' }
         }
       }));
     }
   };
 
-  const atualizarNotaDisciplina = (disciplina, nota) => {
+  const atualizarDisciplina = (disciplina, campo, valor) => {
     setNovoAluno(prev => ({
       ...prev,
       disciplinas: {
         ...prev.disciplinas,
-        [disciplina]: nota
+        [disciplina]: {
+          ...prev.disciplinas[disciplina],
+          [campo]: valor
+        }
       }
     }));
   };
@@ -215,7 +218,7 @@ export default function App() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <h1 className="text-3xl font-bold text-red-600 text-center mb-4">
-            Sistema de Notas
+            Sistema de Notas e Faltas
           </h1>
           
           <div className="flex gap-2 justify-center">
@@ -249,7 +252,7 @@ export default function App() {
         {modo === 'aluno' && (
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-              Consultar Minhas Notas
+              Consultar Minhas Notas e Faltas
             </h2>
             
             <div className="space-y-4">
@@ -294,19 +297,35 @@ export default function App() {
             {notasEncontradas && (
               <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                 <h3 className="text-xl font-semibold text-green-800 mb-4">
-                  Notas de {notasEncontradas.nome}
+                  Dados de {notasEncontradas.nome}
                 </h3>
                 
                 {Object.keys(notasEncontradas.disciplinas).length > 0 ? (
-                  <div className="space-y-2">
-                    {Object.entries(notasEncontradas.disciplinas).map(([disciplina, nota]) => (
-                      <div key={disciplina} className="flex justify-between items-center bg-white p-3 rounded">
-                        <span className="font-medium text-gray-700">{disciplina}</span>
-                        <span className="text-lg font-bold text-blue-600">
-                          {nota || 'Sem nota'}
-                        </span>
-                      </div>
-                    ))}
+                  <div className="space-y-3">
+                    {Object.entries(notasEncontradas.disciplinas).map(([disciplina, dados]) => {
+                      const nota = typeof dados === 'object' ? dados.nota : dados;
+                      const faltas = typeof dados === 'object' ? dados.faltas : '';
+                      
+                      return (
+                        <div key={disciplina} className="bg-white p-4 rounded-lg shadow-sm">
+                          <div className="font-semibold text-gray-800 mb-2 text-lg">{disciplina}</div>
+                          <div className="flex gap-4">
+                            <div className="flex-1">
+                              <span className="text-sm text-gray-600">Nota:</span>
+                              <span className="ml-2 text-lg font-bold text-blue-600">
+                                {nota || 'Sem nota'}
+                              </span>
+                            </div>
+                            <div className="flex-1">
+                              <span className="text-sm text-gray-600">Faltas:</span>
+                              <span className="ml-2 text-lg font-bold text-red-600">
+                                {faltas || '0'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="text-gray-600">Nenhuma disciplina cadastrada ainda.</p>
@@ -459,27 +478,44 @@ export default function App() {
                     </div>
 
                     <div className="space-y-2">
-                      {Object.entries(novoAluno.disciplinas).map(([disciplina, nota]) => (
-                        <div key={disciplina} className="flex gap-2">
-                          <input
-                            type="text"
-                            value={disciplina}
-                            disabled
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded bg-gray-100"
-                          />
-                          <input
-                            type="text"
-                            value={nota}
-                            onChange={(e) => atualizarNotaDisciplina(disciplina, e.target.value)}
-                            className="w-24 px-3 py-2 border border-gray-300 rounded"
-                            placeholder="Nota"
-                          />
-                          <button
-                            onClick={() => removerDisciplina(disciplina)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                      {Object.entries(novoAluno.disciplinas).map(([disciplina, dados]) => (
+                        <div key={disciplina} className="bg-white p-3 rounded-lg border">
+                          <div className="flex gap-2 items-center mb-2">
+                            <input
+                              type="text"
+                              value={disciplina}
+                              disabled
+                              className="flex-1 px-3 py-2 border border-gray-300 rounded bg-gray-100 font-medium"
+                            />
+                            <button
+                              onClick={() => removerDisciplina(disciplina)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                          <div className="flex gap-2">
+                            <div className="flex-1">
+                              <label className="text-xs text-gray-600 mb-1 block">Nota</label>
+                              <input
+                                type="text"
+                                value={dados.nota || ''}
+                                onChange={(e) => atualizarDisciplina(disciplina, 'nota', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded"
+                                placeholder="Ex: 8.5"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <label className="text-xs text-gray-600 mb-1 block">Faltas</label>
+                              <input
+                                type="text"
+                                value={dados.faltas || ''}
+                                onChange={(e) => atualizarDisciplina(disciplina, 'faltas', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded"
+                                placeholder="Ex: 3"
+                              />
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -496,8 +532,8 @@ export default function App() {
                 <div className="space-y-3">
                   {(alunos[turmaSelecionada] || []).map((aluno, index) => (
                     <div key={index} className="p-4 border border-gray-200 rounded-lg">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-semibold text-gray-800">{aluno.nome}</h4>
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className="font-semibold text-gray-800 text-lg">{aluno.nome}</h4>
                         <button
                           onClick={() => removerAluno(index)}
                           className="p-1 text-red-600 hover:bg-red-50 rounded"
@@ -507,13 +543,21 @@ export default function App() {
                       </div>
                       
                       {Object.keys(aluno.disciplinas).length > 0 ? (
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          {Object.entries(aluno.disciplinas).map(([disc, nota]) => (
-                            <div key={disc} className="flex justify-between bg-gray-50 p-2 rounded">
-                              <span className="text-gray-600">{disc}:</span>
-                              <span className="font-medium">{nota || '-'}</span>
-                            </div>
-                          ))}
+                        <div className="space-y-2">
+                          {Object.entries(aluno.disciplinas).map(([disc, dados]) => {
+                            const nota = typeof dados === 'object' ? dados.nota : dados;
+                            const faltas = typeof dados === 'object' ? dados.faltas : '';
+                            
+                            return (
+                              <div key={disc} className="bg-gray-50 p-3 rounded">
+                                <div className="font-medium text-gray-700 mb-1">{disc}</div>
+                                <div className="flex gap-4 text-sm">
+                                  <span className="text-gray-600">Nota: <strong>{nota || '-'}</strong></span>
+                                  <span className="text-gray-600">Faltas: <strong>{faltas || '0'}</strong></span>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       ) : (
                         <p className="text-sm text-gray-500">Sem disciplinas</p>
