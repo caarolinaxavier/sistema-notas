@@ -217,9 +217,18 @@ export default function App() {
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-blue-100 p-4">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <h1 className="text-3xl font-bold text-red-600 text-center mb-4">
-            Sistema de Notas e Faltas
-          </h1>
+          <div className="text-center mb-4">
+            <div className="text-sm font-semibold text-gray-700 mb-1">ANA NERY BAURU</div>
+            <div className="text-xs text-gray-500 mb-1">Mantido por AN – Sistema Integrado de Ensino Técnico LTDA</div>
+            <div className="text-xs text-gray-500 mb-4">CNPJ – 08.036.462/0001-70</div>
+          </div>
+          
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <img src="/logo.png" alt="Logo Ana Nery" className="h-16 w-16 object-contain" />
+            <h1 className="text-3xl font-bold text-red-600">
+              Sistema de Notas e Faltas
+            </h1>
+          </div>
           
           <div className="flex gap-2 justify-center">
             <button
