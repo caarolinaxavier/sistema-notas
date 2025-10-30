@@ -224,7 +224,7 @@ export default function App() {
           </div>
           
           <div className="flex items-center justify-center gap-4 mb-4">
-            <img src="/logo.png" alt="Logo Ana Nery" className="h-16 w-16 object-contain" />
+            <img src="/logo.png" alt="Logo Ana Nery" className="h-20 w-20 object-contain" onError={(e) => e.target.style.display='none'} />
             <h1 className="text-3xl font-bold text-red-600">
               Sistema de Notas e Faltas
             </h1>
