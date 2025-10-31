@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Upload, Download, Plus } from 'lucide-react';
+import './App.css';
+import logo from './logo.png';
 
 export default function App() {
-  const [modo, setModo] = useState('aluno');
+  const SENHA_PADRAO = 'admin123';
+  const [modo, setModo] = useState('aluno'); // aluno ou professor
   const [senhaAdmin, setSenhaAdmin] = useState('');
   const [autenticado, setAutenticado] = useState(false);
-
-  const [nomeAluno, setNomeAluno] = useState('');
-  const [turmaAluno, setTurmaAluno] = useState('');
-  const [notasEncontradas, setNotasEncontradas] = useState(null);
-
   const [turmas, setTurmas] = useState([]);
-  const [turmaSelecionada, setTurmaSelecionada] = useState('');
-  const [novaTurma, setNovaTurma] = useState('');
   const [alunos, setAlunos] = useState({});
+  const [turmaSelecionada, setTurmaSelecionada] = useState('');
   const [novoAluno, setNovoAluno] = useState({ nome: '', disciplinas: {} });
+  const [novaTurma, setNovaTurma] = useState('');
+  const [alunoSelecionado, setAlunoSelecionado] = useState(null);
 
-  const SENHA_PADRAO = 'admin123';
-
+  // Todas as disciplinas organizadas por turma
   const disciplinas = {
-    TEM2: [
+    ENFERMAGEM: [
       { nome: "Técnicas Básicas de Enfermagem", modulo: 1, teorica: 130, estagio: 150 },
       { nome: "Anatomia e Fisiologia humanas", modulo: 1, teorica: 80, estagio: 0 },
       { nome: "Nutrição e Dietética", modulo: 1, teorica: 30, estagio: 0 },
@@ -57,11 +54,25 @@ export default function App() {
       { nome: "Atomística", modulo: 1, teorica: 30, estagio: 0 },
       { nome: "Processamento de Imagens", modulo: 1, teorica: 40, estagio: 40 },
       { nome: "Princípios Básicos de Posicionamento", modulo: 1, teorica: 30, estagio: 40 },
-      { nome: "Técnicas de Posicionamento em Diagnóstico Médico", modulo: 3, teorica: 0, estagio: 100 }, // Módulo 3, só estágio
-      // adicionar mais disciplinas do TRN2/TRN3 se necessário
+      { nome: "Técnicas de Posicionamento em Diagnóstico Médico", modulo: 3, teorica: 0, estagio: 100 },
     ],
-    TRN2: [], // copiar disciplinas do TRN1, adicionar diferenças de estagio se houver
-    TRN3: [], 
+    TRN2: [
+      { nome: "Técnicas de Posicionamento em Diagnóstico Médico", modulo: 2, teorica: 100, estagio: 160 },
+      { nome: "Exames Contrastados", modulo: 3, teorica: 70, estagio: 60 },
+      { nome: "Mamografia", modulo: 3, teorica: 40, estagio: 0 },
+      { nome: "Técnica de Posicionamento Especial", modulo: 3, teorica: 40, estagio: 0 },
+      { nome: "Radiologia Veterinária", modulo: 3, teorica: 30, estagio: 0 },
+      { nome: "Radiologia Odontológica", modulo: 3, teorica: 30, estagio: 0 },
+      { nome: "Radioterapia", modulo: 3, teorica: 30, estagio: 0 },
+      { nome: "Radioisotopia e Medicina Nuclear", modulo: 3, teorica: 30, estagio: 0 },
+      { nome: "Radiologia Industrial", modulo: 3, teorica: 30, estagio: 0 },
+      { nome: "Anatomia Radiológica2", modulo: 3, teorica: 60, estagio: 0 },
+    ],
+    TRN3: [
+      { nome: "Exames Contrastados", modulo: 3, teorica: 70, estagio: 60 },
+      { nome: "Mamografia", modulo: 3, teorica: 40, estagio: 0 },
+      { nome: "Técnica de Posicionamento Especial", modulo: 3, teorica: 40, estagio: 0 },
+    ],
     N1: [
       { nome: "Anatomia", modulo: 1, teorica: 60, estagio: 0 },
       { nome: "Biologia", modulo: 1, teorica: 20, estagio: 0 },
@@ -74,99 +85,44 @@ export default function App() {
       { nome: "Tanatologia Forense", modulo: 1, teorica: 24, estagio: 0 },
       { nome: "Técnicas de Necropsia", modulo: 1, teorica: 40, estagio: 0 },
       { nome: "Traumatologia Forense", modulo: 1, teorica: 28, estagio: 0 },
-    ]
+    ],
   };
 
   useEffect(() => {
-    carregarDados();
+    const turmasLS = JSON.parse(localStorage.getItem('turmas') || '[]');
+    setTurmas(turmasLS);
+    const alunosLS = {};
+    turmasLS.forEach(turma => {
+      alunosLS[turma] = JSON.parse(localStorage.getItem(`alunos_${turma}`) || '[]');
+    });
+    setAlunos(alunosLS);
   }, []);
 
-  const carregarDados = () => {
-    try {
-      const turmasData = localStorage.getItem('turmas');
-      if (turmasData) {
-        const turmasCarregadas = JSON.parse(turmasData);
-        setTurmas(turmasCarregadas);
-        
-        const alunosCarregados = {};
-        turmasCarregadas.forEach(turma => {
-          const alunosData = localStorage.getItem(`alunos_${turma}`);
-          if (alunosData) {
-            alunosCarregados[turma] = JSON.parse(alunosData);
-          } else {
-            alunosCarregados[turma] = [];
-          }
-        });
-        setAlunos(alunosCarregados);
-      }
-    } catch (error) {
-      console.log('Primeira vez usando o sistema');
-    }
-  };
-
   const salvarTurmas = (novasTurmas) => {
-    localStorage.setItem('turmas', JSON.stringify(novasTurmas));
     setTurmas(novasTurmas);
+    localStorage.setItem('turmas', JSON.stringify(novasTurmas));
   };
 
-  const salvarAlunos = (turma, alunosTurma) => {
-    localStorage.setItem(`alunos_${turma}`, JSON.stringify(alunosTurma));
-    setAlunos(prev => ({ ...prev, [turma]: alunosTurma }));
+  const salvarAlunos = (turma, listaAlunos) => {
+    setAlunos(prev => ({ ...prev, [turma]: listaAlunos }));
+    localStorage.setItem(`alunos_${turma}`, JSON.stringify(listaAlunos));
   };
 
   const fazerLogin = () => {
-    if (senhaAdmin === SENHA_PADRAO) {
-      setAutenticado(true);
-    } else {
-      alert('Senha incorreta!');
-    }
-  };
-
-  const buscarNotas = () => {
-    if (!nomeAluno || !turmaAluno) {
-      alert('Preencha seu nome e turma!');
-      return;
-    }
-
-    const alunosTurma = alunos[turmaAluno] || [];
-    const aluno = alunosTurma.find(a => 
-      a.nome.toLowerCase() === nomeAluno.toLowerCase()
-    );
-
-    if (aluno) {
-      setNotasEncontradas(aluno);
-    } else {
-      setNotasEncontradas(null);
-      alert('Aluno não encontrado nesta turma!');
-    }
+    if (senhaAdmin === SENHA_PADRAO) setAutenticado(true);
+    else alert('Senha incorreta!');
   };
 
   const adicionarTurma = () => {
-    if (!novaTurma.trim()) return;
-    
-    if (turmas.includes(novaTurma)) {
-      alert('Turma já existe!');
-      return;
+    if (!turmas.includes(novaTurma) && novaTurma.trim()) {
+      salvarTurmas([...turmas, novaTurma]);
+      salvarAlunos(novaTurma, []);
+      setNovaTurma('');
     }
-
-    const novasTurmas = [...turmas, novaTurma];
-    salvarTurmas(novasTurmas);
-    salvarAlunos(novaTurma, []);
-    setNovaTurma('');
   };
 
   const adicionarAluno = () => {
-    if (!turmaSelecionada) {
-      alert('Selecione uma turma primeiro!');
-      return;
-    }
-
-    if (!novoAluno.nome.trim()) {
-      alert('Digite o nome do aluno!');
-      return;
-    }
-
-    // adiciona disciplinas automaticamente conforme turma
+    if (!turmaSelecionada || !novoAluno.nome.trim()) return;
     const disciplinasDaTurma = disciplinas[turmaSelecionada] || [];
     const disciplinasFormatadas = {};
     disciplinasDaTurma.forEach(d => {
@@ -179,61 +135,114 @@ export default function App() {
         modulo: d.modulo
       };
     });
-
-    const alunoFinal = { 
-      ...novoAluno,
-      disciplinas: { ...disciplinasFormatadas, ...novoAluno.disciplinas }
-    };
-
-    const alunosTurma = alunos[turmaSelecionada] || [];
-    const novosAlunos = [...alunosTurma, alunoFinal];
-    // ordena alfabeticamente
-    novosAlunos.sort((a,b) => a.nome.localeCompare(b.nome));
-    
-    salvarAlunos(turmaSelecionada, novosAlunos);
+    const alunoFinal = { ...novoAluno, disciplinas: disciplinasFormatadas };
+    const lista = [...(alunos[turmaSelecionada] || []), alunoFinal].sort((a,b)=>a.nome.localeCompare(b.nome));
+    salvarAlunos(turmaSelecionada, lista);
     setNovoAluno({ nome: '', disciplinas: {} });
   };
 
   const exportarDados = () => {
     const dados = { turmas, alunos };
-    const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(dados,null,2)], {type:'application/json'});
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'notas_backup.json';
-    a.click();
+    const a = document.createElement('a'); a.href=url; a.download='backup.json'; a.click();
   };
 
   const importarDados = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
+    const file = e.target.files[0]; if(!file) return;
     const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const dados = JSON.parse(event.target.result);
-        
-        if (dados.turmas && dados.alunos) {
-          salvarTurmas(dados.turmas);
-          
-          dados.turmas.forEach(turma => {
-            if (dados.alunos[turma]) {
-              salvarAlunos(turma, dados.alunos[turma]);
-            }
-          });
-          
-          alert('Dados importados com sucesso!');
-          carregarDados();
-        } else {
-          alert('Arquivo inválido!');
-        }
-      } catch (error) {
-        alert('Erro ao importar dados!');
+    reader.onload = (event)=>{
+      const dados = JSON.parse(event.target.result);
+      if(dados.turmas && dados.alunos){
+        salvarTurmas(dados.turmas);
+        dados.turmas.forEach(t=>{
+          salvarAlunos(t, dados.alunos[t] || []);
+        });
       }
-    };
-    reader.readAsText(file);
+    }; reader.readAsText(file);
   };
 
-  // Aqui é onde a parte de renderização e layout entra
-  // ... (mantém o mesmo layout do seu último código que você aprovou com cabeçalho, logo, abas etc.)
+  return (
+    <div className="App">
+      <header>
+        <img src={logo} alt="Logo" className="logo"/>
+        <h1>Sistema de Notas e Estágio</h1>
+      </header>
+      <div className="modo-toggle">
+        <button onClick={()=>setModo('aluno')}>Aluno</button>
+        <button onClick={()=>setModo('professor')}>Professor</button>
+      </div>
+      {modo==='aluno' && (
+        <div className="aluno">
+          <input placeholder="Nome do aluno" value={alunoSelecionado?.nome || ''} disabled />
+          <select value={turmaSelecionada} onChange={e=>setTurmaSelecionada(e.target.value)}>
+            <option value="">Selecione a turma</option>
+            {turmas.map(t=><option key={t} value={t}>{t}</option>)}
+          </select>
+          <button onClick={()=>alert('Aqui vai exibir notas e estágio')}>Ver Notas</button>
+        </div>
+      )}
+      {modo==='professor' && !autenticado && (
+        <div className="login">
+          <input type="password" placeholder="Senha" value={senhaAdmin} onChange={e=>setSenhaAdmin(e.target.value)} />
+          <button onClick={fazerLogin}>Entrar</button>
+        </div>
+      )}
+      {modo==='professor' && autenticado && (
+        <div className="professor">
+          <h2>Gerenciar Turmas</h2>
+          <input placeholder="Nova turma" value={novaTurma} onChange={e=>setNovaTurma(e.target.value)} />
+          <button onClick={adicionarTurma}>Adicionar Turma</button>
+          <select value={turmaSelecionada} onChange={e=>setTurmaSelecionada(e.target.value)}>
+            <option value="">Selecione a turma</option>
+            {turmas.map(t=><option key={t} value={t}>{t}</option>)}
+          </select>
+          <input placeholder="Nome do aluno" value={novoAluno.nome} onChange={e=>setNovoAluno({...novoAluno,nome:e.target.value})} />
+          <button onClick={adicionarAluno}>Adicionar Aluno</button>
+          <button onClick={exportarDados}>Backup</button>
+          <input type="file" onChange={importarDados} />
+          {turmaSelecionada && alunos[turmaSelecionada] && (
+            <div className="lista-alunos">
+              {alunos[turmaSelecionada].map(aluno => (
+                <div key={aluno.nome} onClick={()=>setAlunoSelecionado(aluno)}>
+                  {aluno.nome}
+                </div>
+              ))}
+            </div>
+          )}
+          {alunoSelecionado && (
+            <div className="detalhes-aluno">
+              <h3>{alunoSelecionado.nome}</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Disciplina</th>
+                    <th>Módulo</th>
+                    <th>Teórica</th>
+                    <th>Estágio</th>
+                    <th>Nota</th>
+                    <th>Faltas</th>
+                    <th>Aprovado/Retido</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(alunoSelecionado.disciplinas).map(([nome,dados])=>(
+                    <tr key={nome}>
+                      <td>{nome}</td>
+                      <td>{dados.modulo}</td>
+                      <td><input type="number" value={dados.teorica} onChange={e=>dados.teorica=e.target.value} /></td>
+                      <td><input type="number" value={dados.estagio} onChange={e=>dados.estagio=e.target.value} /></td>
+                      <td><input type="text" value={dados.nota} onChange={e=>dados.nota=e.target.value} /></td>
+                      <td><input type="text" value={dados.faltas} onChange={e=>dados.faltas=e.target.value} /></td>
+                      <td><input type="text" value={dados.aprovado} onChange={e=>dados.aprovado=e.target.value} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
