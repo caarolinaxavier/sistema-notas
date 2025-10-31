@@ -1,21 +1,68 @@
-.app-container { font-family: sans-serif; min-height: 100vh; background:#f0f0f0; }
-.header { display:flex; align-items:center; padding:10px 20px; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-.header .logo { height:50px; margin-right:20px; }
-.login-container { max-width:400px; margin:50px auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1); text-align:center; }
-.login-container input { width:100%; padding:8px; margin:10px 0; }
-.login-container button { padding:8px 12px; margin-top:10px; cursor:pointer; }
-.professor-container { max-width:1200px; margin:20px auto; padding:20px; background:#fff; border-radius:10px; }
-.adicionar-aluno { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
-.adicionar-aluno input, .adicionar-aluno select { padding:5px; }
-.adicionar-aluno button { padding:5px 10px; cursor:pointer; }
-.lista-alunos { max-height:300px; overflow-y:auto; border:1px solid #ccc; border-radius:5px; padding:5px; margin-bottom:20px; }
-.aluno-item { padding:8px; cursor:pointer; border-bottom:1px solid #eee; }
-.aluno-item:hover { background:#f9f9f9; }
-.info-aluno { margin-top:20px; background:#fafafa; padding:10px; border-radius:5px; }
-.abas { display:flex; gap:10px; margin-bottom:10px; }
-.abas button { padding:5px 10px; cursor:pointer; border:none; border-radius:5px; background:#ddd; }
-.abas button.ativa { background:#bbb; font-weight:bold; }
-table { width:100%; border-collapse:collapse; }
-table th, table td { border:1px solid #ccc; padding:5px; text-align:center; }
-table input { width:70px; padding:2px; text-align:center; }
+body {
+  background-color: #f7f7f7;
+  font-family: Arial, sans-serif;
+}
 
+.App {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.login-box {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #ccc;
+  text-align: center;
+}
+
+.login-box input {
+  width: 80%;
+  padding: 8px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.login-box button {
+  padding: 8px 20px;
+  border: none;
+  background: #0077ff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.professor-area h1 {
+  text-align: center;
+}
+
+.adicionar-aluno {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.adicionar-aluno input {
+  flex: 1;
+  padding: 5px;
+}
+
+.aluno-card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.disciplina {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 5px;
+  margin-bottom: 5px;
+}
+
+.disciplina input {
+  padding: 3px;
+}
