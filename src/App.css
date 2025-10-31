@@ -1,143 +1,21 @@
-/* ===============================
-   Estilos gerais para o App
-=============================== */
-body {
-  background: #fef9f9;
-  font-family: 'Inter', sans-serif;
-}
+.app-container { font-family: sans-serif; min-height: 100vh; background:#f0f0f0; }
+.header { display:flex; align-items:center; padding:10px 20px; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+.header .logo { height:50px; margin-right:20px; }
+.login-container { max-width:400px; margin:50px auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1); text-align:center; }
+.login-container input { width:100%; padding:8px; margin:10px 0; }
+.login-container button { padding:8px 12px; margin-top:10px; cursor:pointer; }
+.professor-container { max-width:1200px; margin:20px auto; padding:20px; background:#fff; border-radius:10px; }
+.adicionar-aluno { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+.adicionar-aluno input, .adicionar-aluno select { padding:5px; }
+.adicionar-aluno button { padding:5px 10px; cursor:pointer; }
+.lista-alunos { max-height:300px; overflow-y:auto; border:1px solid #ccc; border-radius:5px; padding:5px; margin-bottom:20px; }
+.aluno-item { padding:8px; cursor:pointer; border-bottom:1px solid #eee; }
+.aluno-item:hover { background:#f9f9f9; }
+.info-aluno { margin-top:20px; background:#fafafa; padding:10px; border-radius:5px; }
+.abas { display:flex; gap:10px; margin-bottom:10px; }
+.abas button { padding:5px 10px; cursor:pointer; border:none; border-radius:5px; background:#ddd; }
+.abas button.ativa { background:#bbb; font-weight:bold; }
+table { width:100%; border-collapse:collapse; }
+table th, table td { border:1px solid #ccc; padding:5px; text-align:center; }
+table input { width:70px; padding:2px; text-align:center; }
 
-/* ===============================
-   Cabeçalho
-=============================== */
-.header-logo {
-  height: 80px;
-  width: 80px;
-  object-fit: contain;
-}
-
-.header-title {
-  color: #dc2626; /* vermelho Tailwind */
-  font-weight: 700;
-  font-size: 1.875rem; /* 3xl */
-}
-
-.header-subtitle {
-  font-size: 0.75rem; /* xs */
-  color: #6b7280; /* cinza */
-}
-
-/* ===============================
-   Botões principais
-=============================== */
-.button-primary {
-  @apply px-6 py-2 rounded-lg font-medium transition;
-}
-
-.button-aluno-active {
-  @apply bg-blue-600 text-white;
-}
-
-.button-aluno-inactive {
-  @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
-}
-
-.button-professor-active {
-  @apply bg-red-600 text-white;
-}
-
-.button-professor-inactive {
-  @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
-}
-
-/* ===============================
-   Formulários
-=============================== */
-input[type="text"],
-input[type="password"],
-select {
-  @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
-}
-
-label {
-  font-weight: 500;
-  color: #374151; /* cinza escuro */
-  font-size: 0.875rem; /* sm */
-}
-
-/* ===============================
-   Container de alunos
-=============================== */
-.aluno-card {
-  @apply p-4 border border-gray-200 rounded-lg;
-}
-
-.aluno-card h4 {
-  @apply font-semibold text-gray-800 text-lg;
-}
-
-/* ===============================
-   Disciplinas
-=============================== */
-.disciplina-card {
-  @apply bg-gray-50 p-3 rounded-lg;
-}
-
-.disciplina-card .disciplina-nome {
-  @apply font-medium text-gray-700 mb-1;
-}
-
-.disciplina-card .campo-info {
-  @apply text-sm text-gray-600;
-}
-
-.disciplina-input {
-  @apply w-full px-3 py-2 border border-gray-300 rounded;
-}
-
-/* ===============================
-   Abas de módulos
-=============================== */
-.tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.tab {
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 500;
-  border: 1px solid #d1d5db; /* cinza claro */
-  background-color: #f3f4f6; /* cinza mais claro */
-  transition: all 0.2s ease-in-out;
-}
-
-.tab-active {
-  background-color: #dc2626; /* vermelho */
-  color: white;
-  border-color: #dc2626;
-}
-
-/* ===============================
-   Campos desbloqueáveis
-=============================== */
-.campo-editavel input {
-  @apply bg-white;
-}
-
-/* ===============================
-   Mensagens de alerta e sucesso
-=============================== */
-.alert {
-  @apply p-4 rounded-lg text-green-800 bg-green-50 border border-green-200;
-}
-
-/* ===============================
-   Responsividade
-=============================== */
-@media (max-width: 640px) {
-  .tabs {
-    flex-direction: column;
-  }
-}
