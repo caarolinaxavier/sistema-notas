@@ -2,19 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
-/*
-  App.jsx - Versão final solicitada
-  - Logo em /public/logo.png
-  - Turmas: TEM2,TEM3,TEM4,TEM5,TEN2,TEN3,TEN4,TEN5,TEN6,TEN7, TRN1,TRN2,TRN3, N1
-  - Professor edita todos os campos (modulo, cargaTeorica, cargaEstagio, nota, faltas, aprovado, notaEstagio)
-  - Aluno vê somente leitura; abas: "Notas Teóricas" e "Notas Estágio" (se houver estágio)
-  - Scroll interno nas tabelas para evitar scroll da página ao focar inputs
-  - localStorage usado para armazenar alunos por turma: chave `alunos_<TURMA>`
-  - Senha padrão: admin123 (oculta no input)
-*/
-
 const SENHA_PADRAO = "admin123";
 
+/* Templates */
 const templateTEM2 = [
   { nome: "Técnicas Básicas de Enfermagem", modulo: 1, cargaTeorica: 130, cargaEstagio: 150 },
   { nome: "Anatomia e Fisiologia humanas", modulo: 1, cargaTeorica: 80, cargaEstagio: "" },
@@ -75,17 +65,28 @@ const templateTRN2 = [
   { nome: "Radiologia Industrial", modulo: 3, cargaTeorica: 30, cargaEstagio: "" },
   { nome: "Anatomia Radiológica2", modulo: 3, cargaTeorica: 60, cargaEstagio: "" },
 
-  // técnica pedida no módulo 3 (estágio 100h, sem carga teórica)
-  { nome: "Técnicas de Posicionamento em Diagnóstico Médico (Módulo 3)", modulo: 3, cargaTeorica: "", cargaEstagio: 100 },
+  // disciplina solicitada: Módulo 3 — somente estágio 100h
+  { nome: "Técnicas de Posicionamento em Diagnóstico Médico", modulo: 3, cargaTeorica: "", cargaEstagio: 100 },
 ];
 
 const templateTRN1 = [
-  // TRN1 largely same as TRN2 module1 + the Módulo3 técnica (as requested)
-  ...templateTRN2.filter((d) => d.modulo === 1 || d.nome === "Técnicas de Posicionamento em Diagnóstico Médico (Módulo 3)"),
-  // ensure no duplicates and keep typical TRN1-focused items
+  // TRN1 should include module1 content and the module3 tecnica (estagio 100)
+  { nome: "Anatomia Básica", modulo: 1, cargaTeorica: 100, cargaEstagio: "" },
+  { nome: "Radiologia Elementar", modulo: 1, cargaTeorica: 20, cargaEstagio: "" },
+  { nome: "Psicologia e Ética", modulo: 1, cargaTeorica: 40, cargaEstagio: "" },
+  { nome: "Fisiologia Humana", modulo: 1, cargaTeorica: 50, cargaEstagio: "" },
+  { nome: "Física Radiológica", modulo: 1, cargaTeorica: 40, cargaEstagio: "" },
+  { nome: "Proteção Radiológica1", modulo: 1, cargaTeorica: 40, cargaEstagio: "" },
+  { nome: "Patologia", modulo: 1, cargaTeorica: 50, cargaEstagio: "" },
+  { nome: "Primeiros Socorros", modulo: 1, cargaTeorica: 30, cargaEstagio: "" },
+  { nome: "Atomística", modulo: 1, cargaTeorica: 30, cargaEstagio: "" },
+  { nome: "Processamento de Imagens", modulo: 1, cargaTeorica: 40, cargaEstagio: 40 },
+  { nome: "Princípios Básicos de Posicionamento", modulo: 1, cargaTeorica: 30, cargaEstagio: 40 },
+
+  // inclusão MÓDULO 3 — somente estágio 100h
+  { nome: "Técnicas de Posicionamento em Diagnóstico Médico", modulo: 3, cargaTeorica: "", cargaEstagio: 100 },
 ];
 
-// Necropsia template
 const templateN1 = [
   { nome: "Anatomia", modulo: 1, cargaTeorica: 60, cargaEstagio: "" },
   { nome: "Biologia", modulo: 1, cargaTeorica: 20, cargaEstagio: "" },
@@ -101,23 +102,9 @@ const templateN1 = [
 ];
 
 const turmasPadrao = [
-  // Enfermagem
-  "TEM2",
-  "TEM3",
-  "TEM4",
-  "TEM5",
-  "TEN2",
-  "TEN3",
-  "TEN4",
-  "TEN5",
-  "TEN6",
-  "TEN7",
-  // Radiologia
-  "TRN1",
-  "TRN2",
-  "TRN3",
-  // Necropsia
-  "N1",
+  "TEM2", "TEM3", "TEM4", "TEM5", "TEN2", "TEN3", "TEN4", "TEN5", "TEN6", "TEN7",
+  "TRN1", "TRN2", "TRN3",
+  "N1"
 ];
 
 function getTemplateFor(turma) {
@@ -147,33 +134,28 @@ function createEmptyStudentFromTemplate(name, turma) {
 }
 
 export default function App() {
-  const [modo, setModo] = useState("aluno"); // 'aluno' or 'admin'
+  const [modo, setModo] = useState("aluno");
   const [senhaAdmin, setSenhaAdmin] = useState("");
   const [autenticado, setAutenticado] = useState(false);
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
-  // Aluno view
   const [nomeAluno, setNomeAluno] = useState("");
   const [turmaAluno, setTurmaAluno] = useState("");
   const [notasEncontradas, setNotasEncontradas] = useState(null);
-  const [alunoTab, setAlunoTab] = useState("teorica"); // 'teorica' or 'estagio'
+  const [alunoTab, setAlunoTab] = useState("teorica");
 
-  // Professor view
   const [turmaSelecionada, setTurmaSelecionada] = useState("");
   const [novoAluno, setNovoAluno] = useState({ nome: "" });
 
   useEffect(() => {
-    // ensure localStorage arrays exist for every turma so selects always show turmas
+    // ensure localStorage keys exist so select always shows turmas
     turmasPadrao.forEach((t) => {
       const key = `alunos_${t}`;
       if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify([]));
     });
   }, []);
 
-  // helper: load students for turma
-  const carregarAlunos = (turma) => {
-    return JSON.parse(localStorage.getItem(`alunos_${turma}`)) || [];
-  };
+  const carregarAlunos = (turma) => JSON.parse(localStorage.getItem(`alunos_${turma}`)) || [];
 
   const fazerLogin = () => {
     if (senhaAdmin === SENHA_PADRAO) {
@@ -185,35 +167,22 @@ export default function App() {
   };
 
   const buscarNotas = () => {
-    if (!nomeAluno || !turmaAluno) {
-      alert("Preencha seu nome e turma!");
-      return;
-    }
+    if (!nomeAluno || !turmaAluno) { alert("Preencha seu nome e turma!"); return; }
     const lista = carregarAlunos(turmaAluno);
     const aluno = lista.find((a) => a.nome.toLowerCase() === nomeAluno.toLowerCase());
-    if (!aluno) {
-      alert("Aluno não encontrado nesta turma!");
-      setNotasEncontradas(null);
-      return;
-    }
+    if (!aluno) { alert("Aluno não encontrado nesta turma!"); setNotasEncontradas(null); return; }
     setNotasEncontradas(aluno);
-    // default to teorica tab; if turma has no estágio fields, estagio tab will be hidden
     setAlunoTab("teorica");
   };
 
   const adicionarAluno = () => {
-    if (!turmaSelecionada || !novoAluno.nome.trim()) {
-      alert("Preencha turma e nome do aluno!");
-      return;
-    }
+    if (!turmaSelecionada || !novoAluno.nome.trim()) { alert("Preencha turma e nome do aluno!"); return; }
     const key = `alunos_${turmaSelecionada}`;
     const list = carregarAlunos(turmaSelecionada);
-    // create student from template
     const student = createEmptyStudentFromTemplate(novoAluno.nome.trim(), turmaSelecionada);
     list.push(student);
     localStorage.setItem(key, JSON.stringify(list));
     setNovoAluno({ nome: "" });
-    // trigger re-render by resetting turmaSelecionada (keep same so UI doesn't lose)
     setTurmaSelecionada((s) => s);
   };
 
@@ -224,7 +193,6 @@ export default function App() {
     if (!list[idxAluno]) return;
     list[idxAluno].disciplinas[nomeDisc][campo] = valor;
     localStorage.setItem(key, JSON.stringify(list));
-    // refresh
     setTurmaSelecionada((s) => s);
   };
 
@@ -238,19 +206,15 @@ export default function App() {
     setTurmaSelecionada((s) => s);
   };
 
-  const turmaHasEstagio = (turma) => {
-    // return true if any discipline in template has cargaEstagio
-    const temp = getTemplateFor(turma);
-    return temp.some((d) => d.cargaEstagio && d.cargaEstagio !== "");
-  };
+  const turmaHasEstagio = (turma) => getTemplateFor(turma).some((d) => d.cargaEstagio && d.cargaEstagio !== "");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-blue-100 p-4">
       <div className="max-w-6xl mx-auto">
-        {/* HEADER */}
+        {/* HEADER with onError fallback for logo */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="flex items-center gap-4">
-            <img src="/logo.png" alt="logo" className="h-20 w-20 object-contain" />
+            <img src="/logo.png" alt="logo" className="h-20 w-20 object-contain" onError={(e) => { e.target.onerror = null; e.target.src = "https://i.imgur.com/lD9BrRR.jpeg"; }} />
             <div className="flex-1">
               <div className="text-2xl font-bold text-red-600">Sistema de Notas e Faltas</div>
               <div className="text-sm font-semibold text-gray-700">ANA NERY BAURU</div>
@@ -272,12 +236,7 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-              <input
-                className="col-span-1 md:col-span-2 px-3 py-2 border rounded"
-                placeholder="Seu nome completo"
-                value={nomeAluno}
-                onChange={(e) => setNomeAluno(e.target.value)}
-              />
+              <input className="col-span-1 md:col-span-2 px-3 py-2 border rounded" placeholder="Seu nome completo" value={nomeAluno} onChange={(e) => setNomeAluno(e.target.value)} />
               <select className="px-3 py-2 border rounded" value={turmaAluno} onChange={(e) => setTurmaAluno(e.target.value)}>
                 <option value="">Selecione sua turma</option>
                 {turmasPadrao.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -293,12 +252,9 @@ export default function App() {
               <div>
                 <div className="font-semibold text-left mb-2">{notasEncontradas.nome}</div>
 
-                {/* tabs */}
                 <div className="mb-3 flex gap-2">
                   <button className={`px-3 py-1 rounded ${alunoTab === "teorica" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setAlunoTab("teorica")}>Notas Teóricas</button>
-                  {turmaHasEstagio(turmaAluno) && (
-                    <button className={`px-3 py-1 rounded ${alunoTab === "estagio" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setAlunoTab("estagio")}>Notas Estágio</button>
-                  )}
+                  {turmaHasEstagio(turmaAluno) && <button className={`px-3 py-1 rounded ${alunoTab === "estagio" ? "bg-blue-600 text-white" : "bg-gray-200"}`} onClick={() => setAlunoTab("estagio")}>Notas Estágio</button>}
                 </div>
 
                 <div className="overflow-auto border rounded max-h-[520px]">
@@ -317,7 +273,6 @@ export default function App() {
                             <th className="p-2 border text-left w-28">Nota Estágio</th>
                           </>
                         ) : (
-                          // estagio tab
                           <>
                             <th className="p-2 border text-left w-28">Carga Estágio</th>
                             <th className="p-2 border text-left w-28">Nota Estágio</th>
@@ -332,7 +287,6 @@ export default function App() {
                         <tr key={nome} className="odd:bg-white even:bg-gray-50">
                           <td className="p-2 border">{nome}</td>
                           <td className="p-2 border">{d.modulo ?? "-"}</td>
-
                           {alunoTab === "teorica" ? (
                             <>
                               <td className="p-2 border">{d.nota || "-"}</td>
@@ -364,20 +318,10 @@ export default function App() {
         {modo === "admin" && !autenticado && (
           <div className="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto mb-6">
             <h2 className="text-2xl font-semibold mb-4 text-center">Login do Professor</h2>
-
             <div className="relative mb-4">
-              <input
-                type={mostrarSenha ? "text" : "password"}
-                value={senhaAdmin}
-                onChange={(e) => setSenhaAdmin(e.target.value)}
-                placeholder="Senha"
-                className="w-full px-3 py-2 border rounded"
-              />
-              <div className="absolute right-3 top-2 cursor-pointer" onClick={() => setMostrarSenha((s) => !s)}>
-                {mostrarSenha ? <EyeOff size={18} /> : <Eye size={18} />}
-              </div>
+              <input type={mostrarSenha ? "text" : "password"} value={senhaAdmin} onChange={(e) => setSenhaAdmin(e.target.value)} placeholder="Senha" className="w-full px-3 py-2 border rounded" />
+              <div className="absolute right-3 top-2 cursor-pointer" onClick={() => setMostrarSenha((s) => !s)}>{mostrarSenha ? <EyeOff size={18} /> : <Eye size={18} />}</div>
             </div>
-
             <div className="flex gap-2 mb-2">
               <button onClick={fazerLogin} className="flex-1 bg-red-600 text-white px-3 py-2 rounded">Entrar</button>
               <button onClick={() => setSenhaAdmin("")} className="flex-1 bg-gray-200 px-3 py-2 rounded">Limpar</button>
@@ -386,7 +330,7 @@ export default function App() {
           </div>
         )}
 
-        {/* PROFESSOR PAINEL */}
+        {/* PROFESSOR PANEL */}
         {modo === "admin" && autenticado && (
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
@@ -418,7 +362,6 @@ export default function App() {
                   <h3 className="font-semibold mb-3">Alunos da turma {turmaSelecionada}</h3>
                   <div className="space-y-4">
                     {carregarAlunos(turmaSelecionada).length === 0 && <div className="text-sm text-gray-500">Nenhum aluno cadastrado.</div>}
-
                     {carregarAlunos(turmaSelecionada).map((aluno, idxAluno) => (
                       <div key={idxAluno} className="border rounded p-3">
                         <div className="flex justify-between items-center mb-2">
@@ -447,40 +390,19 @@ export default function App() {
                                 <tr key={nome} className="odd:bg-white even:bg-gray-50">
                                   <td className="p-2 border align-top">{nome}</td>
 
-                                  {/* Módulo editável */}
-                                  <td className="p-2 border">
-                                    <input value={d.modulo ?? ""} onChange={(e) => atualizarDisciplina(idxAluno, nome, "modulo", e.target.value)} className="w-full px-1 py-0.5 border rounded" />
-                                  </td>
+                                  <td className="p-2 border"><input value={d.modulo ?? ""} onChange={(e) => atualizarDisciplina(idxAluno, nome, "modulo", e.target.value)} className="w-full px-1 py-0.5 border rounded" /></td>
 
-                                  {/* Nota */}
-                                  <td className="p-2 border">
-                                    <input value={d.nota ?? ""} onChange={(e) => atualizarDisciplina(idxAluno, nome, "nota", e.target.value)} className="w-full px-1 py-0.5 border rounded" />
-                                  </td>
+                                  <td className="p-2 border"><input value={d.nota ?? ""} onChange={(e) => atualizarDisciplina(idxAluno, nome, "nota", e.target.value)} className="w-full px-1 py-0.5 border rounded" /></td>
 
-                                  {/* Faltas */}
-                                  <td className="p-2 border">
-                                    <input value={d.faltas ?? ""} onChange={(e) => atualizarDisciplina(idxAluno, nome, "faltas", e.target.value)} className="w-full px-1 py-0.5 border rounded" />
-                                  </td>
+                                  <td className="p-2 border"><input value={d.faltas ?? ""} onChange={(e) => atualizarDisciplina(idxAluno, nome, "faltas", e.target.value)} className="w-full px-1 py-0.5 border rounded" /></td>
 
-                                  {/* Aprovado/Retido */}
-                                  <td className="p-2 border">
-                                    <input value={d.aprovado ?? ""} onChange={(e) => atualizarDisciplina(idxAluno, nome, "aprovado", e.target.value)} className="w-full px-1 py-0.5 border rounded" />
-                                  </td>
+                                  <td className="p-2 border"><input value={d.aprovado ?? ""} onChange={(e) => atualizarDisciplina(idxAluno, nome, "aprovado", e.target.value)} className="w-full px-1 py-0.5 border rounded" /></td>
 
-                                  {/* Carga teórica - editável */}
-                                  <td className="p-2 border">
-                                    <input value={d.cargaTeorica ?? ""} onChange={(e) => atualizarDisciplina(idxAluno, nome, "cargaTeorica", e.target.value)} className="w-full px-1 py-0.5 border rounded" />
-                                  </td>
+                                  <td className="p-2 border"><input value={d.cargaTeorica ?? ""} onChange={(e) => atualizarDisciplina(idxAluno, nome, "cargaTeorica", e.target.value)} className="w-full px-1 py-0.5 border rounded" /></td>
 
-                                  {/* Carga estágio - editável */}
-                                  <td className="p-2 border">
-                                    <input value={d.cargaEstagio ?? ""} onChange={(e) => atualizarDisciplina(idxAluno, nome, "cargaEstagio", e.target.value)} className="w-full px-1 py-0.5 border rounded" />
-                                  </td>
+                                  <td className="p-2 border"><input value={d.cargaEstagio ?? ""} onChange={(e) => atualizarDisciplina(idxAluno, nome, "cargaEstagio", e.target.value)} className="w-full px-1 py-0.5 border rounded" /></td>
 
-                                  {/* Nota estágio */}
-                                  <td className="p-2 border">
-                                    <input value={d.notaEstagio ?? ""} onChange={(e) => atualizarDisciplina(idxAluno, nome, "notaEstagio", e.target.value)} className="w-full px-1 py-0.5 border rounded" />
-                                  </td>
+                                  <td className="p-2 border"><input value={d.notaEstagio ?? ""} onChange={(e) => atualizarDisciplina(idxAluno, nome, "notaEstagio", e.target.value)} className="w-full px-1 py-0.5 border rounded" /></td>
                                 </tr>
                               ))}
                             </tbody>
