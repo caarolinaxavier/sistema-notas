@@ -1,68 +1,103 @@
-body {
-  background-color: #f7f7f7;
+.app-container {
+  text-align: center;
   font-family: Arial, sans-serif;
+  padding: 20px;
+  background: #f5f8fa;
+  min-height: 100vh;
 }
 
-.App {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
+header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.logo {
+  width: 120px;
+  height: auto;
 }
 
 .login-box {
   background: white;
-  padding: 20px;
+  padding: 25px;
   border-radius: 10px;
-  box-shadow: 0 0 10px #ccc;
-  text-align: center;
+  width: 300px;
+  margin: 0 auto;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-.login-box input {
-  width: 80%;
+.login-box input[type="password"],
+.login-box input[type="text"] {
+  width: 90%;
   padding: 8px;
   margin: 10px 0;
   border-radius: 5px;
   border: 1px solid #ccc;
 }
 
-.login-box button {
-  padding: 8px 20px;
-  border: none;
-  background: #0077ff;
+button {
+  background: #1d72b8;
   color: white;
+  border: none;
+  padding: 8px 16px;
+  margin: 5px;
   border-radius: 5px;
   cursor: pointer;
 }
 
-.professor-area h1 {
-  text-align: center;
+button:hover {
+  background: #155d8b;
 }
 
-.adicionar-aluno {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.adicionar-aluno input {
-  flex: 1;
-  padding: 5px;
-}
-
-.aluno-card {
+.professor-area {
   background: #fff;
-  padding: 15px;
+  padding: 20px;
   border-radius: 10px;
-  margin-bottom: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-.disciplina {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 5px;
-  margin-bottom: 5px;
+.turmas-list button {
+  margin: 5px;
 }
 
-.disciplina input {
-  padding: 3px;
+.alunos-lista {
+  list-style: none;
+  padding: 0;
+}
+
+.alunos-lista li {
+  background: #eef3f7;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.alunos-lista li:hover {
+  background: #dde7ef;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 6px;
+}
+
+th {
+  background: #1d72b8;
+  color: white;
+}
+
+input, select {
+  width: 100%;
+  border: none;
+  background: #fff;
+  padding: 4px;
 }
