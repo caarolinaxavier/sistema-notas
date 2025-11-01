@@ -1,82 +1,68 @@
-.app-container {
+.container {
   text-align: center;
-  font-family: Arial, sans-serif;
   padding: 20px;
-  background: #f5f8fa;
+  font-family: "Poppins", sans-serif;
+  background-color: #f9fafb;
   min-height: 100vh;
 }
 
-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 30px;
-}
-
 .logo {
-  width: 120px;
-  height: auto;
+  width: 150px;
+  margin-bottom: 30px;
+  margin-top: 10px;
 }
 
-.login-box {
+.login-card {
+  display: inline-block;
   background: white;
-  padding: 25px;
-  border-radius: 10px;
-  width: 300px;
-  margin: 0 auto;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.login-box input[type="password"],
-.login-box input[type="text"] {
-  width: 90%;
-  padding: 8px;
+.login-card input {
+  padding: 10px;
+  width: 200px;
   margin: 10px 0;
-  border-radius: 5px;
   border: 1px solid #ccc;
+  border-radius: 8px;
 }
 
-button {
-  background: #1d72b8;
+.login-card button {
+  background-color: #4f46e5;
   color: white;
   border: none;
-  padding: 8px 16px;
-  margin: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #155d8b;
-}
-
-.professor-area {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-.turmas-list button {
-  margin: 5px;
-}
-
-.alunos-lista {
-  list-style: none;
-  padding: 0;
-}
-
-.alunos-lista li {
-  background: #eef3f7;
-  margin: 10px 0;
-  padding: 10px;
+  padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
+  transition: 0.3s;
 }
 
-.alunos-lista li:hover {
-  background: #dde7ef;
+.login-card button:hover {
+  background-color: #3730a3;
+}
+
+.painel {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 0 auto;
+  width: 90%;
+  max-width: 1000px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.turma-card {
+  margin: 30px auto;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #fafafa;
+  padding: 15px;
+}
+
+.turma-card h3 {
+  color: #4f46e5;
+  margin-bottom: 10px;
 }
 
 table {
@@ -86,18 +72,18 @@ table {
 }
 
 th, td {
-  border: 1px solid #ccc;
-  padding: 6px;
+  border: 1px solid #ddd;
+  padding: 8px;
 }
 
 th {
-  background: #1d72b8;
+  background-color: #4f46e5;
   color: white;
 }
 
-input, select {
+td input[type="text"] {
   width: 100%;
-  border: none;
-  background: #fff;
-  padding: 4px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
