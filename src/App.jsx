@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Eye, EyeOff, Download, Upload, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 
-// Disciplinas por curso
 const DISCIPLINAS_POR_CURSO = {
   ENFERMAGEM: {
     turmas: ['TEM2', 'TEM3', 'TEM4', 'TEM5', 'TEN2', 'TEN3', 'TEN4', 'TEN5', 'TEN6', 'TEN7'],
@@ -337,7 +336,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* MODO ALUNO */}
         {modo === 'aluno' && (
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">
@@ -462,7 +460,6 @@ export default function App() {
           </div>
         )}
 
-        {/* MODO ADMIN - LOGIN */}
         {modo === 'admin' && !autenticado && (
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">
@@ -501,10 +498,10 @@ export default function App() {
               >
                 Entrar
               </button>
-</div>
+            </div>
+          </div>
         )}
 
-        {/* MODO ADMIN - PAINEL */}
         {modo === 'admin' && autenticado && (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow-lg p-6">
