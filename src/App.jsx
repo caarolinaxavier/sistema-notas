@@ -436,10 +436,6 @@ export default function App() {
                               </div>
                             )}
                             <div>
-                              <span className="text-gray-600">Média:</span>
-                              <span className="ml-2 font-bold text-purple-600">{dados.media || '-'}</span>
-                            </div>
-                            <div>
                               <span className="text-gray-600">Status:</span>
                               <span className={`ml-2 font-bold ${
                                 dados.status === 'Aprovado' ? 'text-green-600' : 
