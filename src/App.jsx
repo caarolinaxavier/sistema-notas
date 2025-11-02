@@ -703,23 +703,6 @@ export default function App() {
                                             placeholder="Ex: 3"
                                           />
                                         </div>
-
-                                        {dados.chEstagio > 0 && (
-                                          <div>
-                                            <label className="text-xs text-gray-600 block mb-1">
-                                              Faltas Estágio
-                                            </label>
-                                            <input
-                                              type="text"
-                                              value={dados.faltasEstagio}
-                                              onChange={(e) => atualizarDisciplina(
-                                                turmaSelecionada, index, disciplina, 'faltasEstagio', e.target.value
-                                              )}
-                                              className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                                              placeholder="Ex: 2"
-                                            />
-                                          </div>
-                                        )}
                                         <div>
                                           <label className="text-xs text-gray-600 block mb-1">
                                             Status
