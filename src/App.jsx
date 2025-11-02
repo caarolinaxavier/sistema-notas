@@ -487,9 +487,7 @@ export default function App() {
                     {mostrarSenha ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  Senha padrão: admin123
-                </p>
+            
               </div>
 
               <button
