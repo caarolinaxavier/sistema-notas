@@ -724,22 +724,6 @@ export default function App() {
                                             />
                                           </div>
                                         )}
-
-                                        <div>
-                                          <label className="text-xs text-gray-600 block mb-1">
-                                            Média
-                                          </label>
-                                          <input
-                                            type="text"
-                                            value={dados.media}
-                                            onChange={(e) => atualizarDisciplina(
-                                              turmaSelecionada, index, disciplina, 'media', e.target.value
-                                            )}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm font-semibold"
-                                            placeholder="Ex: 7.8"
-                                          />
-                                        </div>
-
                                         <div>
                                           <label className="text-xs text-gray-600 block mb-1">
                                             Status
