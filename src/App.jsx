@@ -579,7 +579,7 @@ export default function App() {
                 ) : (
                   <div className="space-y-2">
                     {(alunos[turmaSelecionada] || []).map((aluno, index) => (
-                      <div key={index} className="border border-gray-200 rounded-lg">
+                      <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
                         <div
                           className="flex justify-between items-center p-4 cursor-pointer hover:bg-gray-50 transition"
                           onClick={() => setAlunoExpandido(alunoExpandido === index ? null : index)}
