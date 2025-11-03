@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Eye, EyeOff, Download, Upload, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { db } from './firebase';
+import { collection, getDocs, doc, setDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 
 const DISCIPLINAS_POR_CURSO = {
   ENFERMAGEM: {
@@ -127,6 +129,7 @@ export default function App() {
   const [alunos, setAlunos] = useState({});
   const [novoAluno, setNovoAluno] = useState('');
   const [alunoExpandido, setAlunoExpandido] = useState(null);
+  const [carregando, setCarregando] = useState(true);
 
   const SENHA_PADRAO = 'admin123';
 
@@ -134,20 +137,34 @@ export default function App() {
     carregarDados();
   }, []);
 
-  const carregarDados = () => {
+  const carregarDados = async () => {
+    setCarregando(true);
     try {
-      const alunosData = localStorage.getItem('alunos_sistema');
-      if (alunosData) {
-        setAlunos(JSON.parse(alunosData));
-      }
+      const alunosCollection = collection(db, 'alunos');
+      
+      onSnapshot(alunosCollection, (snapshot) => {
+        const alunosData = {};
+        snapshot.docs.forEach((doc) => {
+          const turma = doc.id;
+          alunosData[turma] = doc.data().alunos || [];
+        });
+        setAlunos(alunosData);
+        setCarregando(false);
+      });
     } catch (error) {
-      console.log('Primeira vez usando o sistema');
+      console.error('Erro ao carregar dados:', error);
+      setCarregando(false);
     }
   };
 
-  const salvarAlunos = (novosAlunos) => {
-    localStorage.setItem('alunos_sistema', JSON.stringify(novosAlunos));
-    setAlunos(novosAlunos);
+  const salvarAlunos = async (turma, alunosTurma) => {
+    try {
+      const turmaDoc = doc(db, 'alunos', turma);
+      await setDoc(turmaDoc, { alunos: alunosTurma });
+    } catch (error) {
+      console.error('Erro ao salvar:', error);
+      alert('Erro ao salvar dados!');
+    }
   };
 
   const fazerLogin = () => {
@@ -177,7 +194,7 @@ export default function App() {
     }
   };
 
-  const adicionarAluno = () => {
+  const adicionarAluno = async () => {
     if (!turmaSelecionada) {
       alert('Selecione uma turma primeiro!');
       return;
@@ -207,8 +224,6 @@ export default function App() {
           notaTeoria: '',
           notaEstagio: '',
           faltasTeoria: '',
-          faltasEstagio: '',
-          media: '',
           status: '',
         };
       });
@@ -219,42 +234,28 @@ export default function App() {
       disciplinas: disciplinasIniciais,
     };
 
-    const novosAlunos = {
-      ...alunos,
-      [turmaSelecionada]: [...alunosTurma, novoAlunoObj].sort((a, b) => 
-        a.nome.localeCompare(b.nome)
-      ),
-    };
+    const novosAlunos = [...alunosTurma, novoAlunoObj].sort((a, b) => 
+      a.nome.localeCompare(b.nome)
+    );
 
-    salvarAlunos(novosAlunos);
+    await salvarAlunos(turmaSelecionada, novosAlunos);
     setNovoAluno('');
   };
 
-  const removerAluno = (turma, index) => {
+  const removerAluno = async (turma, index) => {
     if (!confirm('Remover este aluno?')) return;
     
     const alunosTurma = alunos[turma] || [];
     const novosAlunosTurma = alunosTurma.filter((_, i) => i !== index);
     
-    const novosAlunos = {
-      ...alunos,
-      [turma]: novosAlunosTurma,
-    };
-
-    salvarAlunos(novosAlunos);
+    await salvarAlunos(turma, novosAlunosTurma);
     setAlunoExpandido(null);
   };
 
-  const atualizarDisciplina = (turma, indexAluno, disciplina, campo, valor) => {
+  const atualizarDisciplina = async (turma, indexAluno, disciplina, campo, valor) => {
     const alunosTurma = [...(alunos[turma] || [])];
     alunosTurma[indexAluno].disciplinas[disciplina][campo] = valor;
-
-    const novosAlunos = {
-      ...alunos,
-      [turma]: alunosTurma,
-    };
-
-    salvarAlunos(novosAlunos);
+    await salvarAlunos(turma, alunosTurma);
   };
 
   const exportarDados = () => {
@@ -267,19 +268,20 @@ export default function App() {
     a.click();
   };
 
-  const importarDados = (e) => {
+  const importarDados = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       try {
         const dados = JSON.parse(event.target.result);
         
         if (dados.alunos) {
-          salvarAlunos(dados.alunos);
+          for (const [turma, alunosTurma] of Object.entries(dados.alunos)) {
+            await salvarAlunos(turma, alunosTurma);
+          }
           alert('Dados importados com sucesso!');
-          carregarDados();
         } else {
           alert('Arquivo inválido!');
         }
@@ -289,6 +291,14 @@ export default function App() {
     };
     reader.readAsText(file);
   };
+
+  if (carregando) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-blue-100 flex items-center justify-center">
+        <div className="text-xl text-gray-600">Carregando...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-blue-100 p-4">
@@ -429,12 +439,6 @@ export default function App() {
                               <span className="text-gray-600">Faltas Teoria:</span>
                               <span className="ml-2 font-bold text-orange-600">{dados.faltasTeoria || '0'}</span>
                             </div>
-                            {dados.chEstagio > 0 && (
-                              <div>
-                                <span className="text-gray-600">Faltas Estágio:</span>
-                                <span className="ml-2 font-bold text-orange-600">{dados.faltasEstagio || '0'}</span>
-                              </div>
-                            )}
                             <div>
                               <span className="text-gray-600">Status:</span>
                               <span className={`ml-2 font-bold ${
@@ -483,7 +487,6 @@ export default function App() {
                     {mostrarSenha ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
-            
               </div>
 
               <button
@@ -584,6 +587,7 @@ export default function App() {
                           className="flex justify-between items-center p-4 cursor-pointer hover:bg-gray-50 transition"
                           onClick={() => setAlunoExpandido(alunoExpandido === index ? null : index)}
                         >
+                          <div className="flex items-center gap
                           <div className="flex items-center gap-3">
                             <span className="font-semibold text-gray-800 text-lg">
                               {aluno.nome}
@@ -703,6 +707,7 @@ export default function App() {
                                             placeholder="Ex: 3"
                                           />
                                         </div>
+
                                         <div>
                                           <label className="text-xs text-gray-600 block mb-1">
                                             Status
