@@ -404,7 +404,7 @@ export default function App() {
                         <div key={disciplina} className="bg-white p-4 rounded-lg shadow-sm">
                           <div className="font-semibold text-gray-800 mb-3">{disciplina}</div>
                           
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                             <div>
                               <span className="text-gray-600">CH Teoria:</span>
                               <span className="ml-2 font-medium">{dados.chTeoria}h</span>
